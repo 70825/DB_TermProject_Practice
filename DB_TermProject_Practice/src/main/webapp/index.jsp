@@ -101,6 +101,35 @@
 			}
 		}
 		
+		
+		if(request.getParameter("choice") != null){
+			if(request.getParameter("choice").equals("insert")){
+				String query = "INSERT INTO EMPLOYEE VALUES ("
+						+ "'" + request.getParameter("iFname") + "'" + ", "
+						+ "'" + request.getParameter("iMinit") + "'" + ", "
+						+ "'" + request.getParameter("iLname") + "'" + ", "
+						+ "'" + request.getParameter("iSsn") + "'" + ", "
+						+ "'" + request.getParameter("iBdate") + "'" + ", "
+						+ "'" + request.getParameter("iAddress") + "'" + ", "
+						+ "'" + request.getParameter("iSex") + "'" + ", "
+						+ "'" + request.getParameter("iSalary") + "'" + ", "
+						+ "'" + request.getParameter("iSuper_ssn") + "'" + ", "
+						+ "'" + request.getParameter("iDno") + "'" + ");";
+				conn.prepareStatement(query).executeUpdate();
+			}
+			else if(request.getParameter("choice").equals("update")){
+				String query = "UPDATE EMPLOYEE SET Salary='"
+								+ request.getParameter("uSalary") + "' "
+								+ "WHERE Ssn='" + request.getParameter("uSsn") +
+								"';";
+				conn.prepareStatement(query).executeUpdate();
+			}
+			else if(request.getParameter("choice").equals("delete")){
+				String query = "DELETE FROM EMPLOYEE WHERE Ssn=" + request.getParameter("dSsn") +";";
+				conn.prepareStatement(query).executeUpdate();
+			}
+		}
+		
 		// 표 보여주는 것은 계속 보여줘야함
 		if(request.getParameter("choice") != null){
 			
