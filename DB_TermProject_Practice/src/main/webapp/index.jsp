@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=EUC-KR"
     pageEncoding="EUC-KR"%>
 <%@ page import = "java.sql.*" %>
+<%@ page import = "java.util.HashMap" %>
 <%
 // 구현 순서
 // 1. search 선택 기능
@@ -19,7 +20,7 @@
 <body>
 <form action = "index.jsp">
 	<h3>검색할 부서 선택</h3>
-	<input type='checkbox' name='sResearch' value='H' checked/>Headquarters
+	<input type='checkbox' name='sHeadquarters' value='H' checked/>Headquarters
 	<input type='checkbox' name='sAdministraion' value='A' checked/>Administration
 	<input type='checkbox' name='sResearch' value='R' checked/>Research
 	
@@ -30,7 +31,7 @@
 	<input type='checkbox' name='sAddress' value='1' checked/> Address
 	<input type='checkbox' name='sSex' value='1' checked/> Sex
 	<input type='checkbox' name='sSalary' value='1' checked/> Salary
-	<input type='checkbox' name='sSupervisor' value='1' checked/> Supervisor
+	<input type='checkbox' name='sSuper_ssn' value='1' checked/> Supervisor
 	<input type='checkbox' name='sDepartment' value='1' checked/> Department
 	<br><br>
 	<button type='submit' name='choice' value='search'>검색</button>
@@ -132,7 +133,120 @@
 		
 		// 표 보여주는 것은 계속 보여줘야함
 		if(request.getParameter("choice") != null){
+			String query  = "Select Fname, Minit, Lname, Ssn, ";
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put("Fname", "1");
+			map.put("Lname", "1");
+			map.put("Minit", "1");
+			map.put("Ssn", "1");
+			if(request.getParameter("sBdate") != null){
+				query += "Bdate, ";
+				map.put("Bdate", "1");
+			}
+			if(request.getParameter("sAddress") != null){
+				query += "Address, ";
+				map.put("Address", "1");
+			}
+			if(request.getParameter("sSex") != null){
+				query += "Sex, ";
+				map.put("Sex", "1");
+			}
+			if(request.getParameter("sSalary") != null){
+				query += "Salary, ";
+				map.put("Salary", "1");
+			}
+			if(request.getParameter("sSuper_ssn") != null){
+				query += "Super_ssn, ";
+				map.put("Super_ssn", "1");
+			}
+			if(request.getParameter("sDepartment") != null){
+				query += "Dname, ";
+				map.put("Dname", "1");
+			}
+			query = query.substring(0, query.length() - 2);
+			query += " from employee join department on Dno = Dnumber";
+			if(request.getParameter("sHeadquarters") != null || request.getParameter("sAdministration") != null || request.getParameter("sResearch") != null){
+				query += " where ";
+				if(request.getParameter("sHeadquarters") != null) query += "Dname = 'Headquarters' OR ";
+				if(request.getParameter("sAdministraion") != null) query += "Dname = 'Administration' OR ";
+				if(request.getParameter("sResearch") != null) query += "Dname = 'Research' OR ";
+				query = query.substring(0, query.length() - 3);
+			}
+			query += ";";
 			
+			rs = stmt.executeQuery(query);
+			
+			// 검색 테이블 구현
+			%>
+			<th>Fname</th>
+			<th>Minit</th>
+			<th>Lname</th>
+			<th>Ssn</th>
+			<%
+			if(map.containsKey("Bdate")){
+				%> <th>Bdate</th> <%
+			}
+			if(map.containsKey("Address")){
+				%> <th>Address</th> <%
+			}
+			if(map.containsKey("Sex")){
+				%> <th>Sex</th> <%
+			}
+			if(map.containsKey("Salary")){
+				%> <th>Salary</th> <%
+			}
+			if(map.containsKey("Super_ssn")){
+				%> <th>Super_ssn</th> <%
+			}
+			if(map.containsKey("Dname")){
+				%> <th>Dname</th> <%
+			}
+			
+			while(rs.next()){
+				String Fname = rs.getString(1);
+				String Minit = rs.getString(2);
+				String Lname = rs.getString(3);
+				String Ssn = rs.getString(4);
+				%>
+				<tr>
+					<td size="15"><%=Fname%></td>
+					<td><%=Minit%></td>
+					<td><%=Lname%></td>
+					<td><%=Ssn%></td>
+				<%
+				int val = 5;
+				if(map.containsKey("Bdate")){
+					String Bdate = rs.getString(val);
+					val += 1;
+					%><td><%=Bdate%></td><%
+				}
+				if(map.containsKey("Address")){
+					String Address = rs.getString(val);
+					val += 1;
+					%><td><%=Address%></td><%
+				}
+				if(map.containsKey("Sex")){
+					String Sex = rs.getString(val);
+					val += 1;
+					%><td><%=Sex%></td><%
+				}
+				if(map.containsKey("Salary")){
+					String Salary = rs.getString(val);
+					val += 1;
+					%><td><%=Salary%></td><%
+				}
+				if(map.containsKey("Super_ssn")){
+					String Super_ssn = rs.getString(val);
+					val += 1;
+					%><td><%=Super_ssn%></td><%
+				}
+				if(map.containsKey("Dname")){
+					String Dname = rs.getString(val);
+					val += 1;
+					%><td><%=Dname%></td><%
+				}
+				%> </tr> <%
+			}
 		}
 		
 	} catch(ClassNotFoundException e) {
