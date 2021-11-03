@@ -47,11 +47,12 @@
 	<%
 	Connection conn = null;
 	Statement stmt = null;
+	PreparedStatement pstmt = null;
 	ResultSet rs = null;
 	
 	try {
 		Class.forName("com.mysql.cj.jdbc.Driver");
-		String url = "jdbc:mysql://localhost:3306/practice?serverTimezone=UTC";
+		String url = "jdbc:mysql://localhost:3306/class?serverTimezone=UTC";
 		conn = DriverManager.getConnection(url, "root", "root");
 		
 		stmt = conn.createStatement();
