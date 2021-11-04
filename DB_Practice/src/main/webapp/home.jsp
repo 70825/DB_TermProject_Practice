@@ -172,7 +172,7 @@
 				<p>성별 변경</p>
 				<input type="radio" name="uuSex" value="M" checked>남자
 				<input type="radio" name="uuSex" value="F">여자
-				<button type='submit' name='updateChoice' value='uuSalary'>선택한 내용으로 변경</button>
+				<button type='submit' name='updateChoice' value='uuSex'>선택한 내용으로 변경</button>
 				<%
 			}
 		}
@@ -223,6 +223,12 @@
 						pstmt.setString(2, updateEmployeeSsn[i]);
 						pstmt.executeUpdate();
 					}
+				}
+				else if(request.getParameter("updateChoice").equals("uuSex") && request.getParameter("uuSex") != null){
+					// 내용 추가
+				}
+				else if(request.getParameter("updateChoice").equals("uuSalary") && request.getParameter("uuSalary") != null){
+					// 내용 추가
 				}
 			}
 		}
