@@ -1,433 +1,639 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-    pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import = "java.sql.*" %>
 <%@ page import = "java.util.HashMap" %>
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="EUC-KR">
-	<title>Á÷¿ø Á¤º¸ °Ë»ö</title>
-	<script></script>
+	<title>ì§ì› ì •ë³´ ê²€ìƒ‰</title>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+   
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/customize.css">	
 </head>
 <body>
-<form action = "home.jsp">
-	<%
-	Connection conn = null;
-	Statement stmt = null;
-	PreparedStatement pstmt = null;
-	ResultSet rs = null;
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		function onChanged(radio) {
+
+			$('.' + radio.value).show();
+			$('.' + radio.value).attr("disabled", false);
+			
+			if(radio.value !== "sDepartment") {
+				$(".sDepartment").hide();
+				$(".sDepartment").attr("disabled",true);
+			}
+			if(radio.value !== "sSex"){
+				$(".sSex").hide();
+				$(".sSex").attr("disabled",true);
+			}
+			if(radio.value !== "sSalary"){
+				$(".sSalary").hide();
+				$(".sSalary").attr("disabled",true);
+			}
+			if(radio.value !== "sBirthday"){
+				$(".sBirthday").hide();
+				$(".sBirthday").attr("disabled",true);
+			}
+			if(radio.value !== "sUnderling"){
+				$(".sUnderling").hide();
+				$(".sUnderling").attr("disabled",true);
+			}
+		}
+		
+		function onChangedAddWork(radio) {
+			$('.' + radio.value).show();
+			$('.' + radio.value).attr("disabled", false);
+			
+			if(radio.value !== "insert") {
+				$(".insert").hide();
+				$(".insert").attr("disabled", true);
+			}
+			if(radio.value !== "update") {
+				$(".update").hide();
+				$(".update").attr("disabled", true);
+			}
+			if(radio.value !== "delete") {
+				$(".delete").hide();
+				$(".delete").attr("disabled", true);
+			}
+		}
 	
-	try {
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		String url = "jdbc:mysql://localhost:3306/company?serverTimezone=UTC";
-		conn = DriverManager.getConnection(url, "root", "root"); // url, id, password
-		
-		stmt = conn.createStatement();
-		
-		%>
-		<h3>°Ë»ö ¹üÀ§</h3>
-		<input type='radio' name='search' value='sDefault' checked/>ÀüÃ¼
-		<input type='radio' name='search' value='sDepartment' />ºÎ¼­
-		<input type='radio' name='search' value='sSex' />¼ºº°
-		<input type='radio' name='search' value='sSalary' />¿¬ºÀ
-		<input type='radio' name='search' value='sBirthday' />»ıÀÏ
-		<input type='radio' name='search' value='sUnderling' />ºÎÇÏÁ÷¿ø
-		<button type='submit' name='searchRange' value='ss'>¼±ÅÃ</button>
-		<%
-		
-		if(request.getParameter("searchRange") != null){
-			String param = request.getParameter("search");
-			if(param.equals("sDepartment")){
-				%>
-					<h3>ºÎ¼­ ¼±ÅÃ</h3>
-					<input type='radio' name='ssDepartment' value='H' checked/>Headquarters
-					<input type='radio' name='ssDepartment' value='A'/>Administration
-					<input type='radio' name='ssDepartment' value='R'/>Research
-				<%
+		function onChangedUpdate(radio) {
+			$('.' + radio.value).show();
+			$('.' + radio.value).attr("disabled", false);
+			
+			if(radio.value !== "uAddress") {
+				$(".uAddress").hide();
+				$(".uAddress").attr("disabled", true);
 			}
-			else if(param.equals("sSex")){
-				%>
-					<h3>¼ºº° ¼±ÅÃ</h3>
-					<input type='radio' name='ssSex' value='M' checked/>M
-					<input type='radio' name='ssSex' value='F'/>F
-				<%
+			if(radio.value !== "uSex") {
+				$(".uSex").hide();
+				$(".uSex").attr("disabled", true);
 			}
-			else if(param.equals("sSalary")){
-				%>
-					<h3>¿¬ºÀ ÀÔ·Â</h3>
-					<input type='text' size='15' name='ssSalary'>
-				<%
-			}
-			else if(param.equals("sBirthday")){
-				%>
-					<h3>³¯Â¥ ¼±ÅÃ</h3>
-					<input type='radio' name="ssMonth" value='sJan' checked/>1¿ù
-					<input type='radio' name="ssMonth" value='sFeb'/>2¿ù
-					<input type='radio' name="ssMonth" value='sMar'/>3¿ù
-					<input type='radio' name="ssMonth" value='sApr'/>4¿ù
-					<input type='radio' name="ssMonth" value='sMay'/>5¿ù
-					<input type='radio' name="ssMonth" value='sJun'/>6¿ù
-					<input type='radio' name="ssMonth" value='sJul'/>7¿ù
-					<input type='radio' name="ssMonth" value='sAug'/>8¿ù
-					<input type='radio' name="ssMonth" value='sSep'/>9¿ù
-					<input type='radio' name="ssMonth" value='sOct'/>10¿ù
-					<input type='radio' name="ssMonth" value='sNov'/>11¿ù
-					<input type='radio' name="ssMonth" value='sDec'/>12¿ù
-				<%
-			}
-			else if(param.equals("sUnderling")){
-				%>
-					<h3>»ó»çÀÇ Ssn ÀÔ·Â</h3>
-					<input type='text' size='10' name='ssUnderling'/>
-				<%
+			if(radio.value !== "uSalary") {
+				$(".uSalary").hide();
+				$(".uSalary").attr("disabled", true);
 			}
 		}
+	</script>
+	<form action = "home.jsp">
+		<table border="1">
+		<%
+		Connection conn = null;
+		Statement stmt = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		
-		%>
-			<h3>¼¼ºÎ °Ë»ö ¼³Á¤</h3>
-			<input type='checkbox' name='sName' value='1' checked/> Name
-			<input type='checkbox' name='sSsn' value='1' checked/> Ssn
-			<input type='checkbox' name='sBdate' value='1' checked/> Bdate
-			<input type='checkbox' name='sAddress' value='1' checked/> Address
-			<input type='checkbox' name='sSex' value='1' checked/> Sex
-			<input type='checkbox' name='sSalary' value='1' checked/> Salary
-			<input type='checkbox' name='sSupervisor' value='1' checked/> Supervisor
-			<input type='checkbox' name='sDepartment' value='1' checked/> Department
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			String url = "jdbc:mysql://localhost:3306/company?serverTimezone=UTC";
+			conn = DriverManager.getConnection(url, "root", "root");
+			
+			stmt = conn.createStatement();
+			
+			%>
+			<h3>ê²€ìƒ‰ ë²”ìœ„</h3>
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-primary active">
+					<input type='radio' name='search' value='sDefault' onchange="onChanged(this);" checked/>ì „ì²´
+				</label>
+				<label class="btn btn-primary">
+					<input type='radio' name='search' value='sDepartment' onchange="onChanged(this);"/>ë¶€ì„œ
+				</label>
+				<label class="btn btn-primary">
+					<input type='radio' name='search' value='sSex' onchange="onChanged(this);"/>ì„±ë³„
+				</label>
+				<label class="btn btn-primary">
+					<input type='radio' name='search' value='sSalary' onchange="onChanged(this);"/>ì—°ë´‰
+				</label>
+				<label class="btn btn-primary">
+					<input type='radio' name='search' value='sBirthday' onchange="onChanged(this);"/>ìƒì¼
+				</label>
+				<label class="btn btn-primary">
+					<input type='radio' name='search' value='sUnderling' onchange="onChanged(this);"/>ë¶€í•˜ì§ì›
+				</label>
+			</div>
+			<div class="sDepartment" style="display: none;" disabled>
+				<h3>ë¶€ì„œ ì„ íƒ</h3>
+				<div class="btn-group" data-toggle="buttons">
+					<label class="btn btn-success active">
+						<input type='radio' name='ssDepartment' value='H' checked/>Headquarters
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name='ssDepartment' value='A'/>Administration
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name='ssDepartment' value='R'/>Research
+					</label>
+				</div>
+			</div>
+			<div class="sSex" style="display: none;" disabled>
+				<h3>ì„±ë³„ ì„ íƒ</h3>
+				<div class="btn-group" data-toggle="buttons">
+					<label class="btn btn-success active">
+						<input type='radio' name='ssSex' value='M' checked/>M
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name='ssSex' value='F'/>F
+					</label>					
+				</div>
+			</div>
+			<div class="sSalary" style="display: none;" disabled>
+				<h3>ì—°ë´‰ ì…ë ¥</h3>
+				<input type='text' size='15' name='ssSalary'>
+			</div>
+			<div class="sBirthday" style="display: none;" disabled>
+				<h3>ë‚ ì§œ ì„ íƒ</h3>
+				<div class="btn-group" data-toggle="buttons">
+					<label class="btn btn-success active">
+						<input type='radio' name="ssMonth" value='sJan' checked/>1ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sFeb'/>2ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sMar'/>3ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sApr'/>4ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sMay'/>5ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sJun'/>6ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sJul'/>7ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sAug'/>8ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sSep'/>9ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sOct'/>10ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sNov'/>11ì›”
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sDec'/>12ì›”
+					</label>
+				</div>
+			</div>
+			<div class="sUnderling" style="display: none;" disabled>
+				<h3>ìƒì‚¬ì˜ Ssn ì…ë ¥</h3>
+				<input type='text' size='10' name='ssUnderling'/>
+			</div>
+			
+			<h3>ì„¸ë¶€ ê²€ìƒ‰ ì„¤ì •</h3>
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-primary active">
+					<input type='checkbox' name='sName' value='1' checked/> Name
+				</label>
+				<label class="btn btn-primary active">
+					<input type='checkbox' name='sSsn' value='1' checked/> Ssn
+				</label>
+				<label class="btn btn-primary active">
+					<input type='checkbox' name='sBdate' value='1' checked/> Bdate
+				</label>
+				<label class="btn btn-primary active">
+					<input type='checkbox' name='sAddress' value='1' checked/> Address
+				</label>
+				<label class="btn btn-primary active">
+					<input type='checkbox' name='sSex' value='1' checked/> Sex
+				</label>
+				<label class="btn btn-primary active">
+					<input type='checkbox' name='sSalary' value='1' checked/> Salary
+				</label>
+				<label class="btn btn-primary active">
+					<input type='checkbox' name='sSupervisor' value='1' checked/> Supervisor
+				</label>
+				<label class="btn btn-primary active">
+					<input type='checkbox' name='sDepartment' value='1' checked/> Department
+				</label>
+			</div>
 			<br><br>
-			<button type='submit' name='choice' value='search'>°Ë»ö</button>
-		<%
-		
-		%>
-		<h3>Ãß°¡ ÀÛ¾÷</h3>
-		<label><input type='radio' name='work' value="insert">Á÷¿ø Ãß°¡</label>
-		<label><input type='radio' name='work' value='update'>Á÷¿ø Á¤º¸ ¼öÁ¤</label>
-		<label><input type='radio' name='work' value='delete'>Á÷¿ø »èÁ¦</label>
-		<button type='submit' name='work'>¼±ÅÃ</button>
-		<br><br>
-		<%
-		
-		// insert, update, delete ±¸Çö 
-		if(request.getParameter("work") != null){
-			if(request.getParameter("work").equals("insert")){
-				%>
-					<table border="1">
-						<th>Fname</th>
-						<th>Minit</th>
-						<th>Lname</th>
-						<th>Ssn</th>
-						<th>Bdate</th>
-						<th>Address</th>
-						<th>Sex</th>
-						<th>Salary</th>
-						<th>Super_ssn</th>
-						<th>Dno</th>
-						<tr>
-							<td><input type="text" size="8" name="iFname"></td>
-							<td><input type="text" size="2" name="iMinit"></td>
-							<td><input type="text" size="8" name="iLname"></td>
-							<td><input type="text" size="10" name="iSsn"></td>
-							<td><input type="text" size="15" name="iBdate"></td>
-							<td><input type="text" size="30" name="iAddress"></td>
-							<td><input type="text" size="2" name="iSex"></td>
-							<td><input type="text" size="9" name="iSalary"></td>
-							<td><input type="text" size="10" name="iSuper_ssn"></td>
-							<td><input type="text" size="3" name="iDno"></td>
-						</tr>
-					</table>
-					<button type='submit' name='choice' value='insert'>Á÷¿ø Ãß°¡</button>
-					<br><br>
-				<%
-			}
-			else if(request.getParameter("work").equals("update")){
-				%>
-					<input type="radio" name="uSelect" value="uAddress" checked>ÁÖ¼Ò º¯°æ
-					<input type="radio" name="uSelect" value="uSex">¼ºº° º¯°æ
-					<input type="radio" name="uSelect" value="uSalary">±Ş¿© º¯°æ
-				<%
-			}
-			else if(request.getParameter("work").equals("delete")){
-				%>
-					<button type='submit' name='choice' value='delete'>Á÷¿ø »èÁ¦</button>
-					<br><br>
-				<%
-			}
-		}
-		
-		if(request.getParameter("uSelect") != null){
-			if(request.getParameter("uSelect").equals("uAddress")){
-				%>
-				<label>ÁÖ¼Ò ÀÔ·ÂÃ¢ &nbsp;<input type='text' size='30' name='uuAddress'></label>
-				<button type='submit' name='updateChoice' value='uuAddress'>ÁÖ¼Ò º¯°æ Àû¿ë</button>
-				<%
-			}
-			else if(request.getParameter("uSelect").equals("uSalary")){
-				%>
-				<label>±Ş¿© ¼öÁ¤ &nbsp;<input type='text' size='15' name='uSalary'></label><br><br>
-				<button type='submit' name='updateChoice' value='uuSalary'>±Ş¿© º¯°æ</button>
-				<br><br>
-				<%
-			}
-			else{
-				%>
-				<p>¼ºº° º¯°æ</p>
-				<input type="radio" name="uuSex" value="M" checked>³²ÀÚ
-				<input type="radio" name="uuSex" value="F">¿©ÀÚ
-				<button type='submit' name='updateChoice' value='uuSex'>¼±ÅÃÇÑ ³»¿ëÀ¸·Î º¯°æ</button>
-				<%
-			}
-		}
-		
-		
-		if(request.getParameter("choice") != null){ // insert¿Í delete Äõ¸®
-			if(request.getParameter("choice").equals("insert")){
-				String[] arr = {"iFname", "iMinit", "iLname", "iSsn", "iBdate", "iAddress", "iSex", "iSalary", "iSuper_ssn", "iDno"};
-				boolean flag = true;
-				for(int i = 0; i < arr.length; i++){
-					if(request.getParameter(arr[i]).equals("")) flag = false;
-				}
+			<button class="btn btn-info" type='submit' name='choice' value='search'>ê²€ìƒ‰</button>
+			<%
+			
+			%>
+			<h3>ì¶”ê°€ ì‘ì—…</h3>
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-warning">
+					<input type='radio' name='work' value="insert" onchange="onChangedAddWork(this);">ì§ì› ì¶”ê°€
+				</label>
+				<label class="btn btn-warning">
+					<input type='radio' name='work' value='update' onchange="onChangedAddWork(this);">ì§ì› ì •ë³´ ë³€ê²½
+				</label>
+				<label class="btn btn-warning">
+					<input type='radio' name='work' value='delete' onchange="onChangedAddWork(this);">ì§ì› ì‚­ì œ
+				</label>
+			</div>
+			<div class="insert" style="display:none;">
+				<div style="margin-left:3%">
+						<form>
+						  <div class="form-row">
+						    <div class="col-md-2">
+						      <div class="md-form form-group">
+    						    <label for="iFname">First Name</label>
+						        <input type="text" size="8" name="iFname" class="form-control" placeholder="Fname">
+						      </div>
+						    </div>
+						
+						    <div class="col-md-2">
+						      <div class="md-form form-group">
+						        <label for="iMinit">Middle Initial</label>
+						        <input type="text" size="2" name="iMinit" class="form-control" placeholder="Minit">
+						      </div>
+						    </div>
+						    
+   						    <div class="col-md-2">
+						      <div class="md-form form-group">
+						        <label for="iLname">Last Name</label>
+						        <input type="text" size="8" name="iLname" class="form-control" placeholder="Lname">
+						      </div>
+						    </div>
+						  </div>
+						  
+						  <div class="form-row">
+						    <div class="col-md-3">
+						      <div class="md-form form-group">
+ 						        <label for="iSsn">SSN</label>
+						        <input type="text" size="10" name="iSsn" class="form-control" placeholder="SSN">
+						      </div>
+						    </div>
+						    
+						    <div class="col-md-3">
+						    	<label for="iSex">Sex</label>
+						    	<br>
+							    <div class="btn-group" data-toggle="buttons">
+							      <label class="btn btn-success active">
+								    <input type="radio" name="iSex" value="M" checked>ë‚¨ì
+							      </label>
+								  <label class="btn btn-success">
+								    <input type="radio" name="iSex" value="F">ì—¬ì
+								  </label>
+							  </div>
+						    </div>
+						  </div>
+
+						  <div class="form-row">
+						    <div class="col-md-6">
+						      <div class="md-form form-group">
+						        <label for="iAddress">Address</label>
+						        <input type="text" size="30" name="iAddress" class="form-control" placeholder="Address">
+						      </div>
+						    </div>
+					      </div>
+					      
+						  <div class="form-row">
+						    <div class="col-md-3">
+						      <div class="md-form form-group">
+						        <label for="iBdate">Date of Birth</label>
+						        <input type="text" size="15" name="iBdate" class="form-control" placeholder="YYYY-MM-DD">
+						      </div>
+						    </div>
+
+						    <div class="col-md-3">
+						      <div class="md-form form-group">
+						        <label for="iSalary">Salary</label>
+						        <input type="text" size="9" name="iSalary" class="form-control" placeholder="Salary">
+						      </div>
+						    </div>
+						  </div>
+						  
+						  <div class="form-row">
+						    <div class="col-md-3">
+						      <div class="md-form form-group">
+						        <label for="iSuper_ssn">Super SSN</label>
+						        <input type="text" size="10" name="iSuper_ssn" class="form-control" placeholder="Super SSN">
+						      </div>
+						    </div>
+
+						    <div class="col-md-3">
+						      <div class="md-form form-group">
+						        <label for="iDno">Dno</label>
+						        <input type="text" size="3" name="iDno" class="form-control" placeholder="Dno">
+						      </div>
+						    </div>
+						  </div>
+						  
+						  <button type='submit' name='choice' value='insert' class="btn btn-info btn-md">ì§ì› ì¶”ê°€</button>
+						</form>
+					</div>
+			</div>
 				
-				if(flag){
-					String query = "INSERT INTO EMPLOYEE VALUES ("
-							+ "'" + request.getParameter("iFname") + "'" + ", "
-							+ "'" + request.getParameter("iMinit") + "'" + ", "
-							+ "'" + request.getParameter("iLname") + "'" + ", "
-							+ "'" + request.getParameter("iSsn") + "'" + ", "
-							+ "'" + request.getParameter("iBdate") + "'" + ", "
-							+ "'" + request.getParameter("iAddress") + "'" + ", "
-							+ "'" + request.getParameter("iSex") + "'" + ", "
-							+ "'" + request.getParameter("iSalary") + "'" + ", "
-							+ "'" + request.getParameter("iSuper_ssn") + "'" + ", "
-							+ "'" + request.getParameter("iDno") + "'" + ");";
-					conn.prepareStatement(query).executeUpdate();
-				}
-			}
-			else if(request.getParameter("choice").equals("delete")){
-				String[] deleteEmployeeSsn = request.getParameterValues("updateCheckBox");
-				if(deleteEmployeeSsn != null && deleteEmployeeSsn.length != 0){
-					for(int i = 0; i < deleteEmployeeSsn.length; i++){
-						String query = "DELETE FROM EMPLOYEE WHERE Ssn=" + deleteEmployeeSsn[i];
+			<div class="update" style="display: none;" disabled>
+				<div class="btn-group"" data-toggle="buttons">
+					<label class="btn btn-success">
+						<input type="radio" name="uSelect" value="uAddress" onchange="onChangedUpdate(this);" checked>ì£¼ì†Œ ë³€ê²½
+					</label>
+					<label class="btn btn-success">
+						<input type="radio" name="uSelect" value="uSex" onchange="onChangedUpdate(this);">ì„±ë³„ ë³€ê²½
+					</label>
+					<label class="btn btn-success">
+						<input type="radio" name="uSelect" value="uSalary" onchange="onChangedUpdate(this);">ê¸‰ì—¬ ë³€ê²½
+					</label>
+				</div>
+			</div>
+			<div class="delete" style="display: none;" disabled>
+				<button class="btn btn-danger" type='submit' name='choice' value='delete'>ì§ì› ì‚­ì œ</button>
+			</div>
+			
+			<div class="uAddress" style="display:none;">
+				<label><h4>ì£¼ì†Œ ì…ë ¥ì°½ &nbsp;</h4><input type='text' size='30' name='uuAddress'></label> <br>
+				<button class="btn btn-info" type='submit' name='updateChoice' value='uuAddress'>ì£¼ì†Œ ë³€ê²½ ì ìš©</button>
+			</div>
+			<div class="uSex" style="display:none;">
+				<p>ì„±ë³„ ë³€ê²½</p>
+				<div class="btn-group" data-toggle="buttons">
+					<label class="btn btn-success active">
+						<input type='radio' name='uuSex' value='M' checked/>  M  
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name='uuSex' value='F'/>  F  
+					</label>					
+				</div> 
+				<br>
+				<button class="btn btn-info" type='submit' name='updateChoice' value='uuSex'>ì„±ë³„ ë³€ê²½</button>
+			</div>
+			<div class="uSalary" style="display:none;">
+				<label>ê¸‰ì—¬ ìˆ˜ì • &nbsp;<input type='text' size='15' name='uuSalary'></label><br>
+				<button class="btn btn-info" type='submit' name='updateChoice' value='uuSalary'>ê¸‰ì—¬ ë³€ê²½</button>
+			</div>
+			
+			<%
+			
+			// insert, update, delete êµ¬í˜„ 
+			if(request.getParameter("choice") != null){ // insertì™€ delete ì¿¼ë¦¬
+				if(request.getParameter("choice").equals("insert")){
+					String[] arr = {"iFname", "iMinit", "iLname", "iSsn", "iBdate", "iAddress", "iSex", "iSalary", "iSuper_ssn", "iDno"};
+					boolean flag = true;
+					for(int i = 0; i < arr.length; i++){
+						if(request.getParameter(arr[i]).equals("")) flag = false;
+					}
+					
+					if(flag){
+						String query = "INSERT INTO EMPLOYEE VALUES ("
+								+ "'" + request.getParameter("iFname") + "'" + ", "
+								+ "'" + request.getParameter("iMinit") + "'" + ", "
+								+ "'" + request.getParameter("iLname") + "'" + ", "
+								+ "'" + request.getParameter("iSsn") + "'" + ", "
+								+ "'" + request.getParameter("iBdate") + "'" + ", "
+								+ "'" + request.getParameter("iAddress") + "'" + ", "
+								+ "'" + request.getParameter("iSex") + "'" + ", "
+								+ "'" + request.getParameter("iSalary") + "'" + ", "
+								+ "'" + request.getParameter("iSuper_ssn") + "'" + ", "
+								+ "'" + request.getParameter("iDno") + "'" + ");";
 						conn.prepareStatement(query).executeUpdate();
 					}
 				}
-			}
-		}
-		
-		if(request.getParameter("updateChoice") != null){ // update Äõ¸®
-			String[] updateEmployeeSsn = request.getParameterValues("updateCheckBox");
-			if(updateEmployeeSsn != null && updateEmployeeSsn.length != 0){
-				if(request.getParameter("updateChoice").equals("uuAddress") && request.getParameter("uuAddress") != null){
-					for(int i = 0; i < updateEmployeeSsn.length; i++){
-						String query = "UPDATE EMPLOYEE SET Address = ? WHERE Ssn = ?";
-						pstmt = conn.prepareStatement(query);
-						pstmt.setString(1, request.getParameter("uuAddress"));
-						pstmt.setString(2, updateEmployeeSsn[i]);
-						pstmt.executeUpdate();
+				else if(request.getParameter("choice").equals("delete")){
+					String[] deleteEmployeeSsn = request.getParameterValues("updateCheckBox");
+					if(deleteEmployeeSsn != null && deleteEmployeeSsn.length != 0){
+						for(int i = 0; i < deleteEmployeeSsn.length; i++){
+							String query = "DELETE FROM EMPLOYEE WHERE Ssn=" + deleteEmployeeSsn[i];
+							conn.prepareStatement(query).executeUpdate();
+						}
 					}
 				}
-				else if(request.getParameter("updateChoice").equals("uuSex") && request.getParameter("uuSex") != null){
-					// ³»¿ë Ãß°¡
+			}
+			
+			if(request.getParameter("updateChoice") != null){ // update ì¿¼ë¦¬
+				String[] updateEmployeeSsn = request.getParameterValues("updateCheckBox");
+				if(updateEmployeeSsn != null && updateEmployeeSsn.length != 0){
+					if(request.getParameter("updateChoice").equals("uuAddress") && request.getParameter("uuAddress") != null){
+						for(int i = 0; i < updateEmployeeSsn.length; i++){
+							String query = "UPDATE EMPLOYEE SET Address = ? WHERE Ssn = ?";
+							pstmt = conn.prepareStatement(query);
+							pstmt.setString(1, request.getParameter("uuAddress"));
+							pstmt.setString(2, updateEmployeeSsn[i]);
+							pstmt.executeUpdate();
+						}
+					}
+					else if(request.getParameter("updateChoice").equals("uuSex") && request.getParameter("uuSex") != null){
+						for(int i = 0; i < updateEmployeeSsn.length; i++){
+							String query = "UPDATE EMPLOYEE SET Sex = ? WHERE Ssn = ?";
+							pstmt = conn.prepareStatement(query);
+							pstmt.setString(1, request.getParameter("uuSex"));
+							pstmt.setString(2, updateEmployeeSsn[i]);
+							pstmt.executeUpdate();
+						}
+					}
+					else if(request.getParameter("updateChoice").equals("uuSalary") && request.getParameter("uuSalary") != null){
+						for (int i = 0; i < updateEmployeeSsn.length; i++){
+							String query = "UPDATE EMPLOYEE SET Salary = ? WHERE Ssn = ?";
+							pstmt = conn.prepareStatement(query);
+							pstmt.setString(1, request.getParameter("uuSalary"));
+							pstmt.setString(2, updateEmployeeSsn[i]);
+							pstmt.executeUpdate();
+						}
+					}
 				}
-				else if(request.getParameter("updateChoice").equals("uuSalary") && request.getParameter("uuSalary") != null){
-					// ³»¿ë Ãß°¡
+			}
+			%>
+			<h3>ê²€ìƒ‰ ê²°ê³¼</h3>
+			<table class="table table-hover">
+			<%
+			//request.getParameter("choice") != null
+			if(true){
+				String query = "SELECT a.Ssn, ";
+				HashMap<String, String> map = new HashMap<String, String>();
+				boolean flag = false; // a.Ssnë§Œ ìˆìœ¼ë©´ í‘œë¥¼ ë³´ì—¬ì£¼ì§€ ì•Šì•„ì•¼í•¨
+				if(request.getParameter("sName") != null){
+					query += "concat(a.Fname, ' ', a.Minit, ' ', a.Lname) as Name, ";
+					map.put("Name", "1");
+					flag = true;
 				}
+				if(request.getParameter("sSsn") != null){
+					query += "a.Ssn, ";
+					map.put("Ssn", "1");
+					flag = true;
+				}
+				if(request.getParameter("sBdate") != null){
+					query += "a.Bdate, ";
+					map.put("Bdate", "1");
+					flag = true;
+				}
+				if(request.getParameter("sAddress") != null){
+					query += "a.Address, ";
+					map.put("Address", "1");
+					flag = true;
+				}
+				if(request.getParameter("sSex") != null){
+					query += "a.Sex, ";
+					map.put("Sex", "1");
+					flag = true;
+				}
+				if(request.getParameter("sSalary") != null){
+					query += "a.Salary, ";
+					map.put("Salary", "1");
+					flag = true;
+				}
+				if(request.getParameter("sSupervisor") != null){
+					query += "concat(b.Fname, ' ', b.Minit, ' ', b.Lname) as Supervisor, ";
+					map.put("Supervisor", "1");
+					flag = true;
+				}
+				if(request.getParameter("sDepartment") != null){
+					query += "Dname, ";
+					map.put("Dname", "1");
+					flag = true;
+				}
+				query = query.substring(0, query.length() - 2);
+				query += " FROM employee a LEFT JOIN employee b ON a.super_ssn=b.ssn JOIN department ON a.Dno=Dnumber";
+				
+				if(request.getParameter("ssDepartment") != null){
+					query += " where Dname = ";
+					if(request.getParameter("ssDepartment").equals("H")) query += "'Headquarters'";
+					else if(request.getParameter("ssDepartment").equals("A")) query += "'Administration'";
+					else query += "'Research'";
+				}
+				else if(request.getParameter("ssSex") != null){
+					query += " where a.Sex = ";
+					if(request.getParameter("ssSex").equals("M")) query += "'M'";
+					else query += "'F'";
+				}
+				else if(request.getParameter("ssSalary") != null && !request.getParameter("ssSalary").equals("")){
+					query += " where a.Salary > " + request.getParameter("ssSalary");
+				}
+				else if(request.getParameter("ssMonth") != null){
+					String[] ans = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+					String[] arr = {"sJan", "sFeb", "sMar", "sApr", "sMay", "sJun", "sJul", "sAug", "sSep", "sOct", "sDec", "sNov"};
+					query += " where MONTH(a.Bdate) = ";
+					
+					for(int i = 0; i < 12; i++){
+						if(request.getParameter("ssMonth").equals(arr[i])){
+							query += ans[i];
+						}
+					}
+				}
+				else if(request.getParameter("ssUnderling") != null && !request.getParameter("ssUnderling").equals("")){
+					query += " where a.Super_ssn = " + request.getParameter("ssUnderling");
+				}
+				query += ";";
+				
+				
+				rs = stmt.executeQuery(query);
+				
+				// ê²€ìƒ‰ ê²°ê³¼ í…Œì´ë¸” êµ¬í˜„
+				if(flag){
+					%>
+					<th>ì„ íƒ</th>
+					<%
+				}
+				if(map.containsKey("Name")){
+					%> <th>NAME</th><%
+				}
+				if(map.containsKey("Ssn")){
+					%> <th>SSN</th><%
+				}
+				if(map.containsKey("Bdate")){
+					%> <th>BDATE</th> <%
+				}
+				if(map.containsKey("Address")){
+					%> <th>ADDRESS</th> <%
+				}
+				if(map.containsKey("Sex")){
+					%> <th>SEX</th> <%
+				}
+				if(map.containsKey("Salary")){
+					%> <th>SALARY</th> <%
+				}
+				if(map.containsKey("Supervisor")){
+					%> <th>SUPERVISOR</th> <%
+				}
+				if(map.containsKey("Dname")){
+					%> <th>DEPARTMENT</th> <%
+				}
+				
+				while(rs.next()){
+					String checkBoxSsn = rs.getString(1);
+					%><tr><%
+					if(flag){
+						%>
+						<td> <input type="checkbox" name="updateCheckBox" value=<%=checkBoxSsn%>> </td>
+						<%
+					}
+					int val = 2;
+					if(map.containsKey("Name")){
+						String Name = rs.getString(val);
+						val += 1;
+						%><td><%=Name%></td><%
+					}
+					if(map.containsKey("Ssn")){
+						String Ssn = rs.getString(val);
+						val += 1;
+						%><td><%=Ssn%></td><%
+					}
+					if(map.containsKey("Bdate")){
+						String Bdate = rs.getString(val);
+						val += 1;
+						%><td><%=Bdate%></td><%
+					}
+					if(map.containsKey("Address")){
+						String Address = rs.getString(val);
+						val += 1;
+						%><td><%=Address%></td><%
+					}
+					if(map.containsKey("Sex")){
+						String Sex = rs.getString(val);
+						val += 1;
+						%><td><%=Sex%></td><%
+					}
+					if(map.containsKey("Salary")){
+						String Salary = rs.getString(val);
+						val += 1;
+						%><td><%=Salary%></td><%
+					}
+					if(map.containsKey("Supervisor")){
+						String Supervisor = rs.getString(val);
+						if(Supervisor == null) Supervisor = "";
+						val += 1;
+						%><td><%=Supervisor%></td><%
+					}
+					if(map.containsKey("Dname")){
+						String Dname = rs.getString(val);
+						val += 1;
+						%><td><%=Dname%></td><%
+					}
+					%> </tr> <%
+				}
+			}
+			
+		} catch(ClassNotFoundException e) {
+			System.out.println("ë“œë¼ì´ë²„ ë¡œë”© ì‹¤íŒ¨");
+		} catch(SQLException e) {
+			System.out.println("ì—ëŸ¬: " + e);
+		}
+		
+		finally {
+			try {
+				
+				if(conn != null && !conn.isClosed()) {
+					conn.close();
+				}
+				if(stmt != null && !stmt.isClosed()) {
+					stmt.close();
+				}
+				if(pstmt != null && !pstmt.isClosed()){
+					pstmt.close();
+				}
+				if(rs != null && !rs.isClosed()) {
+					rs.close();
+				}
+			} catch(SQLException e) {
+				e.printStackTrace();
 			}
 		}
 		%>
-		<h3>°Ë»ö °á°ú</h3>
-		<table border="1">
-		<%
-		//request.getParameter("choice") != null
-		if(true){
-			String query = "SELECT a.Ssn, ";
-			HashMap<String, String> map = new HashMap<String, String>();
-			boolean flag = false; // a.Ssn¸¸ ÀÖÀ¸¸é Ç¥¸¦ º¸¿©ÁÖÁö ¾Ê¾Æ¾ßÇÔ
-			if(request.getParameter("sName") != null){
-				query += "concat(a.Fname, ' ', a.Minit, ' ', a.Lname) as Name, ";
-				map.put("Name", "1");
-				flag = true;
-			}
-			if(request.getParameter("sSsn") != null){
-				query += "a.Ssn, ";
-				map.put("Ssn", "1");
-				flag = true;
-			}
-			if(request.getParameter("sBdate") != null){
-				query += "a.Bdate, ";
-				map.put("Bdate", "1");
-				flag = true;
-			}
-			if(request.getParameter("sAddress") != null){
-				query += "a.Address, ";
-				map.put("Address", "1");
-				flag = true;
-			}
-			if(request.getParameter("sSex") != null){
-				query += "a.Sex, ";
-				map.put("Sex", "1");
-				flag = true;
-			}
-			if(request.getParameter("sSalary") != null){
-				query += "a.Salary, ";
-				map.put("Salary", "1");
-				flag = true;
-			}
-			if(request.getParameter("sSupervisor") != null){
-				query += "concat(b.Fname, ' ', b.Minit, ' ', b.Lname) as Supervisor, ";
-				map.put("Supervisor", "1");
-				flag = true;
-			}
-			if(request.getParameter("sDepartment") != null){
-				query += "Dname, ";
-				map.put("Dname", "1");
-				flag = true;
-			}
-			query = query.substring(0, query.length() - 2);
-			query += " FROM employee a LEFT JOIN employee b ON a.super_ssn=b.ssn JOIN department ON a.Dno=Dnumber";
-			
-			if(request.getParameter("ssDepartment") != null){
-				query += " where Dname = ";
-				if(request.getParameter("ssDepartment").equals("H")) query += "'Headquarters'";
-				else if(request.getParameter("ssDepartment").equals("A")) query += "'Administration'";
-				else query += "'Research'";
-			}
-			else if(request.getParameter("ssSex") != null){
-				query += " where a.Sex = ";
-				if(request.getParameter("ssSex").equals("M")) query += "'M'";
-				else query += "'F'";
-			}
-			else if(request.getParameter("ssSalary") != null && !request.getParameter("ssSalary").equals("")){
-				query += " where a.Salary > " + request.getParameter("ssSalary");
-			}
-			else if(request.getParameter("ssMonth") != null){
-				String[] ans = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
-				String[] arr = {"sJan", "sFeb", "sMar", "sApr", "sMay", "sJun", "sJul", "sAug", "sSep", "sOct", "sDec", "sNov"};
-				query += " where MONTH(a.Bdate) = ";
-				
-				for(int i = 0; i < 12; i++){
-					if(request.getParameter("ssMonth").equals(arr[i])){
-						query += ans[i];
-					}
-				}
-			}
-			else if(request.getParameter("ssUnderling") != null && !request.getParameter("ssUnderling").equals("")){
-				query += " where a.Super_ssn = " + request.getParameter("ssUnderling");
-			}
-			query += ";";
-			
-			
-			rs = stmt.executeQuery(query);
-			
-			// °Ë»ö °á°ú Å×ÀÌºí ±¸Çö
-			if(flag){
-				%>
-				<th>¼±ÅÃ</th>
-				<%
-			}
-			if(map.containsKey("Name")){
-				%> <th>NAME</th><%
-			}
-			if(map.containsKey("Ssn")){
-				%> <th>SSN</th><%
-			}
-			if(map.containsKey("Bdate")){
-				%> <th>BDATE</th> <%
-			}
-			if(map.containsKey("Address")){
-				%> <th>ADDRESS</th> <%
-			}
-			if(map.containsKey("Sex")){
-				%> <th>SEX</th> <%
-			}
-			if(map.containsKey("Salary")){
-				%> <th>SALARY</th> <%
-			}
-			if(map.containsKey("Supervisor")){
-				%> <th>SUPERVISOR</th> <%
-			}
-			if(map.containsKey("Dname")){
-				%> <th>DEPARTMENT</th> <%
-			}
-			
-			while(rs.next()){
-				String checkBoxSsn = rs.getString(1);
-				%><tr><%
-				if(flag){
-					%>
-					<td> <input type="checkbox" name="updateCheckBox" value=<%=checkBoxSsn%>> </td>
-					<%
-				}
-				int val = 2;
-				if(map.containsKey("Name")){
-					String Name = rs.getString(val);
-					val += 1;
-					%><td><%=Name%></td><%
-				}
-				if(map.containsKey("Ssn")){
-					String Ssn = rs.getString(val);
-					val += 1;
-					%><td><%=Ssn%></td><%
-				}
-				if(map.containsKey("Bdate")){
-					String Bdate = rs.getString(val);
-					val += 1;
-					%><td><%=Bdate%></td><%
-				}
-				if(map.containsKey("Address")){
-					String Address = rs.getString(val);
-					val += 1;
-					%><td><%=Address%></td><%
-				}
-				if(map.containsKey("Sex")){
-					String Sex = rs.getString(val);
-					val += 1;
-					%><td><%=Sex%></td><%
-				}
-				if(map.containsKey("Salary")){
-					String Salary = rs.getString(val);
-					val += 1;
-					%><td><%=Salary%></td><%
-				}
-				if(map.containsKey("Supervisor")){
-					String Supervisor = rs.getString(val);
-					if(Supervisor == null) Supervisor = "";
-					val += 1;
-					%><td><%=Supervisor%></td><%
-				}
-				if(map.containsKey("Dname")){
-					String Dname = rs.getString(val);
-					val += 1;
-					%><td><%=Dname%></td><%
-				}
-				%> </tr> <%
-			}
-		}
-		
-	} catch(ClassNotFoundException e) {
-		System.out.println("µå¶óÀÌ¹ö ·Îµù ½ÇÆĞ");
-	} catch(SQLException e) {
-		System.out.println("¿¡·¯: " + e);
-	}
-	
-	finally {
-		try {
-			
-			if(conn != null && !conn.isClosed()) {
-				conn.close();
-			}
-			if(stmt != null && !stmt.isClosed()) {
-				stmt.close();
-			}
-			if(pstmt != null && !pstmt.isClosed()){
-				pstmt.close();
-			}
-			if(rs != null && !rs.isClosed()) {
-				rs.close();
-			}
-		} catch(SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	%>
 </table>
 </form>
 </body>
