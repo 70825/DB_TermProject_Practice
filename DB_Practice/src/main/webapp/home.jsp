@@ -45,22 +45,28 @@
 		}
 		
 		function onChangedAddWork(radio) {
-			$('.' + radio.value).show();
-			$('.' + radio.value).attr("disabled", false);
-			
-			if(radio.value !== "insert") {
-				$(".insert").hide();
-				$(".insert").attr("disabled", true);
-			}
-			if(radio.value !== "update") {
-				$(".update").hide();
-				$(".update").attr("disabled", true);
-			}
-			if(radio.value !== "delete") {
-				$(".delete").hide();
-				$(".delete").attr("disabled", true);
-			}
-		}
+	         $('.' + radio.value).show();
+	         $('.' + radio.value).attr("disabled", false);
+	         
+	         if(radio.value !== "insert") {
+	            $(".insert").hide();
+	            $(".insert").attr("disabled", true);
+	         }
+	         if(radio.value !== "update") {
+	            $(".update").hide();
+	            $(".update").attr("disabled", true);
+	            $(".uAddress").hide();
+	            $(".uAddress").attr("disabled", true);
+	            $(".uSex").hide();
+	            $(".uSex").attr("disabled", true);
+	            $(".uSalary").hide();
+	            $(".uSalary").attr("disabled", true);
+	         }
+	         if(radio.value !== "delete") {
+	            $(".delete").hide();
+	            $(".delete").attr("disabled", true);
+	         }
+	      }
 	
 		function onChangedUpdate(radio) {
 			$('.' + radio.value).show();
@@ -375,25 +381,24 @@
 			if(request.getParameter("choice") != null){ // insert와 delete 쿼리
 				if(request.getParameter("choice").equals("insert")){
 					String[] arr = {"iFname", "iMinit", "iLname", "iSsn", "iBdate", "iAddress", "iSex", "iSalary", "iSuper_ssn", "iDno"};
-					boolean flag = true;
-					for(int i = 0; i < arr.length; i++){
-						if(request.getParameter(arr[i]).equals("")) flag = false;
-					}
+					String[] sql_arr = {"Fname", "Minit", "Lname", "Ssn", "Bdate", "Address", "Sex", "Salary", "Super_ssn", "Dno"};
 					
-					if(flag){
-						String query = "INSERT INTO EMPLOYEE VALUES ("
-								+ "'" + request.getParameter("iFname") + "'" + ", "
-								+ "'" + request.getParameter("iMinit") + "'" + ", "
-								+ "'" + request.getParameter("iLname") + "'" + ", "
-								+ "'" + request.getParameter("iSsn") + "'" + ", "
-								+ "'" + request.getParameter("iBdate") + "'" + ", "
-								+ "'" + request.getParameter("iAddress") + "'" + ", "
-								+ "'" + request.getParameter("iSex") + "'" + ", "
-								+ "'" + request.getParameter("iSalary") + "'" + ", "
-								+ "'" + request.getParameter("iSuper_ssn") + "'" + ", "
-								+ "'" + request.getParameter("iDno") + "'" + ");";
-						conn.prepareStatement(query).executeUpdate();
+					String query = "INSERT INTO EMPLOYEE(";
+					for(int i = 0; i < sql_arr.length; i++){
+						if(!request.getParameter(arr[i]).equals("")){
+							query += sql_arr[i] + ", ";
+						}
 					}
+					query = query.substring(0, query.length() - 2) + ") VALUES(";
+					
+					for(int i = 0; i < arr.length; i++){
+						if(!request.getParameter(arr[i]).equals("")){
+							query += "'" + request.getParameter(arr[i]) + "', ";
+						}
+					}
+					query = query.substring(0, query.length() - 2) + ");";
+					
+					conn.prepareStatement(query).executeUpdate();
 				}
 				else if(request.getParameter("choice").equals("delete")){
 					String[] deleteEmployeeSsn = request.getParameterValues("updateCheckBox");
@@ -448,7 +453,7 @@
 				HashMap<String, String> map = new HashMap<String, String>();
 				boolean flag = false; // a.Ssn만 있으면 표를 보여주지 않아야함
 				if(request.getParameter("sName") != null){
-					query += "concat(a.Fname, ' ', a.Minit, ' ', a.Lname) as Name, ";
+					query += "IF(a.Minit IS NULL, concat(a.Fname, ' ', a.Lname), concat(a.Fname, ' ', a.Minit, ' ', a.Lname)), ";
 					map.put("Name", "1");
 					flag = true;
 				}
@@ -520,7 +525,6 @@
 				}
 				query += ";";
 				
-				
 				rs = stmt.executeQuery(query);
 				
 				// 검색 결과 테이블 구현
@@ -570,26 +574,35 @@
 					}
 					if(map.containsKey("Ssn")){
 						String Ssn = rs.getString(val);
+						if(Ssn.length() < 9){
+							for(int i = Ssn.length(); i < 9; i++){
+								Ssn = '0' + Ssn;
+							}
+						}
 						val += 1;
 						%><td><%=Ssn%></td><%
 					}
 					if(map.containsKey("Bdate")){
 						String Bdate = rs.getString(val);
+						if(Bdate == null) Bdate = "";
 						val += 1;
 						%><td><%=Bdate%></td><%
 					}
 					if(map.containsKey("Address")){
 						String Address = rs.getString(val);
+						if(Address == null) Address = "";
 						val += 1;
 						%><td><%=Address%></td><%
 					}
 					if(map.containsKey("Sex")){
 						String Sex = rs.getString(val);
+						if(Sex == null) Sex = "";
 						val += 1;
 						%><td><%=Sex%></td><%
 					}
 					if(map.containsKey("Salary")){
 						String Salary = rs.getString(val);
+						if(Salary == null) Salary = "";
 						val += 1;
 						%><td><%=Salary%></td><%
 					}
