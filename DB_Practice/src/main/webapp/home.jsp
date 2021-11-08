@@ -42,35 +42,40 @@
 				$(".sUnderling").hide();
 				$(".sUnderling").attr("disabled",true);
 			}
+			if(radio.value !== "sAddress"){
+				$(".sAddress").hide();
+				$(".sAddress").attr("disabled",true);
+			}
 		}
 		
 		function onChangedAddWork(radio) {
-	         $('.' + radio.value).show();
-	         $('.' + radio.value).attr("disabled", false);
-	         
-	         if(radio.value !== "insert") {
-	            $(".insert").hide();
-	            $(".insert").attr("disabled", true);
-	         }
-	         if(radio.value !== "update") {
-	            $(".update").hide();
-	            $(".update").attr("disabled", true);
-	            $(".uAddress").hide();
-	            $(".uAddress").attr("disabled", true);
-	            $(".uSex").hide();
-	            $(".uSex").attr("disabled", true);
-	            $(".uSalary").hide();
-	            $(".uSalary").attr("disabled", true);
-	         }
-	         if(radio.value !== "delete") {
-	            $(".delete").hide();
-	            $(".delete").attr("disabled", true);
-	         }
-	      }
+			$('.' + radio.value).show();
+			$('.' + radio.value).attr("disabled", false);
+			
+			if(radio.value !== "insert") {
+				$(".insert").hide();
+				$(".insert").attr("disabled", true);
+			}
+			if(radio.value !== "update") {
+				$(".update").hide();
+				$(".update").attr("disabled", true);
+				$(".uAddress").hide();
+				$(".uAddress").attr("disabled", true);
+				$(".uSex").hide();
+				$(".uSex").attr("disabled", true);
+				$(".uSalary").hide();
+				$(".uSalary").attr("disabled", true);
+			}
+			if(radio.value !== "delete") {
+				$(".delete").hide();
+				$(".delete").attr("disabled", true);
+			}
+		}
 	
 		function onChangedUpdate(radio) {
 			$('.' + radio.value).show();
 			$('.' + radio.value).attr("disabled", false);
+			lastUpdate=radio.value;
 			
 			if(radio.value !== "uAddress") {
 				$(".uAddress").hide();
@@ -84,6 +89,27 @@
 				$(".uSalary").hide();
 				$(".uSalary").attr("disabled", true);
 			}
+		}
+		
+		function validTest() {
+			var fname = document.getElementsByName('iFname');
+			var lname = document.getElementsByName('iLname');
+			var ssn = document.getElementsByName('iSsn');
+			var dno = document.getElementsByName('iDno');
+			dnum=+dno[0].value;
+			if(fname[0].value === "" || lname[0].value === "" || ssn[0].value === "" || dno[0].value === ""){
+				alert("이름, Ssn, Dno는 필수 입력 항목입니다.");
+				return false;
+			}
+			if(ssn[0].value.length !== 9) {
+				alert("ssn 길이는 9자 입니다.");
+				return false;
+			}
+			if(dnum !== 1 && dnum !== 4 && dnum !== 5) {
+				alert(""+ dnum + "은 없는 부서 번호입니다.");
+				return false;
+			}
+			document.getElementById('insertForm').submit();
 		}
 	</script>
 	<form action = "home.jsp">
@@ -121,6 +147,9 @@
 				</label>
 				<label class="btn btn-primary">
 					<input type='radio' name='search' value='sUnderling' onchange="onChanged(this);"/>부하직원
+				</label>
+				<label class="btn btn-primary">
+					<input type='radio' name='search' value='sAddress' onchange="onChanged(this);"/>거주지
 				</label>
 			</div>
 			<div class="sDepartment" style="display: none;" disabled>
@@ -197,6 +226,10 @@
 				<h3>상사의 Ssn 입력</h3>
 				<input type='text' size='10' name='ssUnderling'/>
 			</div>
+			<div class="sAddress" style="display: none;" disabled>
+				<h3>거주지 입력</h3>
+				<input type='text' size='10' name='ssAddress'/>
+			</div>
 			
 			<h3>세부 검색 설정</h3>
 			<div class="btn-group" data-toggle="buttons">
@@ -244,7 +277,7 @@
 			</div>
 			<div class="insert" style="display:none;">
 				<div style="margin-left:3%">
-						<form>
+						<form id="insertForm">
 						  <div class="form-row">
 						    <div class="col-md-2">
 						      <div class="md-form form-group">
@@ -272,7 +305,7 @@
 						    <div class="col-md-3">
 						      <div class="md-form form-group">
  						        <label for="iSsn">SSN</label>
-						        <input type="text" size="10" name="iSsn" class="form-control" placeholder="SSN">
+						        <input type="text" size="10" name="iSsn" class="form-control" placeholder="SSN" onkeyup="this.value=this.value.replace(/[^-0-9]/g,'');">
 						      </div>
 						    </div>
 						    
@@ -378,71 +411,71 @@
 			<%
 			
 			// insert, update, delete 구현 
-			if(request.getParameter("choice") != null){ // insert와 delete 쿼리
-				if(request.getParameter("choice").equals("insert")){
-					String[] arr = {"iFname", "iMinit", "iLname", "iSsn", "iBdate", "iAddress", "iSex", "iSalary", "iSuper_ssn", "iDno"};
-					String[] sql_arr = {"Fname", "Minit", "Lname", "Ssn", "Bdate", "Address", "Sex", "Salary", "Super_ssn", "Dno"};
-					
-					String query = "INSERT INTO EMPLOYEE(";
-					for(int i = 0; i < sql_arr.length; i++){
-						if(!request.getParameter(arr[i]).equals("")){
-							query += sql_arr[i] + ", ";
+						if(request.getParameter("choice") != null){ // insert와 delete 쿼리
+							if(request.getParameter("choice").equals("insert")){
+								String[] arr = {"iFname", "iMinit", "iLname", "iSsn", "iBdate", "iAddress", "iSex", "iSalary", "iSuper_ssn", "iDno"};
+								String[] sql_arr = {"Fname", "Minit", "Lname", "Ssn", "Bdate", "Address", "Sex", "Salary", "Super_ssn", "Dno"};
+								
+								String query = "INSERT INTO EMPLOYEE(";
+								for(int i = 0; i < sql_arr.length; i++){
+									if(!request.getParameter(arr[i]).equals("")){
+										query += sql_arr[i] + ", ";
+									}
+								}
+								query = query.substring(0, query.length() - 2) + ") VALUES(";
+								
+								for(int i = 0; i < arr.length; i++){
+									if(!request.getParameter(arr[i]).equals("")){
+										query += "'" + request.getParameter(arr[i]) + "', ";
+									}
+								}
+								query = query.substring(0, query.length() - 2) + ");";
+								
+								conn.prepareStatement(query).executeUpdate();
+							}
+							else if(request.getParameter("choice").equals("delete")){
+								String[] deleteEmployeeSsn = request.getParameterValues("updateCheckBox");
+								if(deleteEmployeeSsn != null && deleteEmployeeSsn.length != 0){
+									for(int i = 0; i < deleteEmployeeSsn.length; i++){
+										String query = "DELETE FROM EMPLOYEE WHERE Ssn=" + deleteEmployeeSsn[i];
+										conn.prepareStatement(query).executeUpdate();
+									}
+								}
+							}
 						}
-					}
-					query = query.substring(0, query.length() - 2) + ") VALUES(";
-					
-					for(int i = 0; i < arr.length; i++){
-						if(!request.getParameter(arr[i]).equals("")){
-							query += "'" + request.getParameter(arr[i]) + "', ";
+						
+						if(request.getParameter("updateChoice") != null){ // update 쿼리
+							String[] updateEmployeeSsn = request.getParameterValues("updateCheckBox");
+							if(updateEmployeeSsn != null && updateEmployeeSsn.length != 0){
+								if(request.getParameter("updateChoice").equals("uuAddress") && request.getParameter("uuAddress") != null){
+									for(int i = 0; i < updateEmployeeSsn.length; i++){
+										String query = "UPDATE EMPLOYEE SET Address = ? WHERE Ssn = ?";
+										pstmt = conn.prepareStatement(query);
+										pstmt.setString(1, request.getParameter("uuAddress"));
+										pstmt.setString(2, updateEmployeeSsn[i]);
+										pstmt.executeUpdate();
+									}
+								}
+								else if(request.getParameter("updateChoice").equals("uuSex") && request.getParameter("uuSex") != null){
+									for(int i = 0; i < updateEmployeeSsn.length; i++){
+										String query = "UPDATE EMPLOYEE SET Sex = ? WHERE Ssn = ?";
+										pstmt = conn.prepareStatement(query);
+										pstmt.setString(1, request.getParameter("uuSex"));
+										pstmt.setString(2, updateEmployeeSsn[i]);
+										pstmt.executeUpdate();
+									}
+								}
+								else if(request.getParameter("updateChoice").equals("uuSalary") && request.getParameter("uuSalary") != null){
+									for (int i = 0; i < updateEmployeeSsn.length; i++){
+										String query = "UPDATE EMPLOYEE SET Salary = ? WHERE Ssn = ?";
+										pstmt = conn.prepareStatement(query);
+										pstmt.setString(1, request.getParameter("uuSalary"));
+										pstmt.setString(2, updateEmployeeSsn[i]);
+										pstmt.executeUpdate();
+									}
+								}
+							}
 						}
-					}
-					query = query.substring(0, query.length() - 2) + ");";
-					
-					conn.prepareStatement(query).executeUpdate();
-				}
-				else if(request.getParameter("choice").equals("delete")){
-					String[] deleteEmployeeSsn = request.getParameterValues("updateCheckBox");
-					if(deleteEmployeeSsn != null && deleteEmployeeSsn.length != 0){
-						for(int i = 0; i < deleteEmployeeSsn.length; i++){
-							String query = "DELETE FROM EMPLOYEE WHERE Ssn=" + deleteEmployeeSsn[i];
-							conn.prepareStatement(query).executeUpdate();
-						}
-					}
-				}
-			}
-			
-			if(request.getParameter("updateChoice") != null){ // update 쿼리
-				String[] updateEmployeeSsn = request.getParameterValues("updateCheckBox");
-				if(updateEmployeeSsn != null && updateEmployeeSsn.length != 0){
-					if(request.getParameter("updateChoice").equals("uuAddress") && request.getParameter("uuAddress") != null){
-						for(int i = 0; i < updateEmployeeSsn.length; i++){
-							String query = "UPDATE EMPLOYEE SET Address = ? WHERE Ssn = ?";
-							pstmt = conn.prepareStatement(query);
-							pstmt.setString(1, request.getParameter("uuAddress"));
-							pstmt.setString(2, updateEmployeeSsn[i]);
-							pstmt.executeUpdate();
-						}
-					}
-					else if(request.getParameter("updateChoice").equals("uuSex") && request.getParameter("uuSex") != null){
-						for(int i = 0; i < updateEmployeeSsn.length; i++){
-							String query = "UPDATE EMPLOYEE SET Sex = ? WHERE Ssn = ?";
-							pstmt = conn.prepareStatement(query);
-							pstmt.setString(1, request.getParameter("uuSex"));
-							pstmt.setString(2, updateEmployeeSsn[i]);
-							pstmt.executeUpdate();
-						}
-					}
-					else if(request.getParameter("updateChoice").equals("uuSalary") && request.getParameter("uuSalary") != null){
-						for (int i = 0; i < updateEmployeeSsn.length; i++){
-							String query = "UPDATE EMPLOYEE SET Salary = ? WHERE Ssn = ?";
-							pstmt = conn.prepareStatement(query);
-							pstmt.setString(1, request.getParameter("uuSalary"));
-							pstmt.setString(2, updateEmployeeSsn[i]);
-							pstmt.executeUpdate();
-						}
-					}
-				}
-			}
 			%>
 			<h3>검색 결과</h3>
 			<table class="table table-hover">
@@ -453,7 +486,7 @@
 				HashMap<String, String> map = new HashMap<String, String>();
 				boolean flag = false; // a.Ssn만 있으면 표를 보여주지 않아야함
 				if(request.getParameter("sName") != null){
-					query += "IF(a.Minit IS NULL, concat(a.Fname, ' ', a.Lname), concat(a.Fname, ' ', a.Minit, ' ', a.Lname)), ";
+					query += "concat(a.Fname, ' ', a.Minit, ' ', a.Lname) as Name, ";
 					map.put("Name", "1");
 					flag = true;
 				}
@@ -495,35 +528,38 @@
 				query = query.substring(0, query.length() - 2);
 				query += " FROM employee a LEFT JOIN employee b ON a.super_ssn=b.ssn JOIN department ON a.Dno=Dnumber";
 				
-				if(request.getParameter("ssDepartment") != null){
-					query += " where Dname = ";
-					if(request.getParameter("ssDepartment").equals("H")) query += "'Headquarters'";
-					else if(request.getParameter("ssDepartment").equals("A")) query += "'Administration'";
-					else query += "'Research'";
-				}
-				else if(request.getParameter("ssSex") != null){
-					query += " where a.Sex = ";
-					if(request.getParameter("ssSex").equals("M")) query += "'M'";
-					else query += "'F'";
-				}
-				else if(request.getParameter("ssSalary") != null && !request.getParameter("ssSalary").equals("")){
-					query += " where a.Salary > " + request.getParameter("ssSalary");
-				}
-				else if(request.getParameter("ssMonth") != null){
-					String[] ans = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
-					String[] arr = {"sJan", "sFeb", "sMar", "sApr", "sMay", "sJun", "sJul", "sAug", "sSep", "sOct", "sDec", "sNov"};
-					query += " where MONTH(a.Bdate) = ";
-					
-					for(int i = 0; i < 12; i++){
-						if(request.getParameter("ssMonth").equals(arr[i])){
-							query += ans[i];
+				if(request.getParameter("search") != null && !request.getParameter("search").equals("sDefault")){
+					if(request.getParameter("ssDepartment") != null){
+						query += " where Dname = ";
+						if(request.getParameter("ssDepartment").equals("H")) query += "'Headquarters'";
+						else if(request.getParameter("ssDepartment").equals("A")) query += "'Administration'";
+						else query += "'Research'";
+					}
+					else if(request.getParameter("ssSex") != null){
+						query += " where a.Sex = ";
+						if(request.getParameter("ssSex").equals("M")) query += "'M'";
+						else query += "'F'";
+					}
+					else if(request.getParameter("ssSalary") != null && !request.getParameter("ssSalary").equals("")){
+						query += " where a.Salary > " + request.getParameter("ssSalary");
+					}
+					else if(request.getParameter("ssMonth") != null){
+						String[] ans = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+						String[] arr = {"sJan", "sFeb", "sMar", "sApr", "sMay", "sJun", "sJul", "sAug", "sSep", "sOct", "sDec", "sNov"};
+						query += " where MONTH(a.Bdate) = ";
+						
+						for(int i = 0; i < 12; i++){
+							if(request.getParameter("ssMonth").equals(arr[i])){
+								query += ans[i];
+							}
 						}
 					}
-				}
-				else if(request.getParameter("ssUnderling") != null && !request.getParameter("ssUnderling").equals("")){
-					query += " where a.Super_ssn = " + request.getParameter("ssUnderling");
+					else if(request.getParameter("ssUnderling") != null && !request.getParameter("ssUnderling").equals("")){
+						query += " where a.Super_ssn = " + request.getParameter("ssUnderling");
+					}
 				}
 				query += ";";
+				
 				
 				rs = stmt.executeQuery(query);
 				
@@ -574,35 +610,26 @@
 					}
 					if(map.containsKey("Ssn")){
 						String Ssn = rs.getString(val);
-						if(Ssn.length() < 9){
-							for(int i = Ssn.length(); i < 9; i++){
-								Ssn = '0' + Ssn;
-							}
-						}
 						val += 1;
 						%><td><%=Ssn%></td><%
 					}
 					if(map.containsKey("Bdate")){
 						String Bdate = rs.getString(val);
-						if(Bdate == null) Bdate = "";
 						val += 1;
 						%><td><%=Bdate%></td><%
 					}
 					if(map.containsKey("Address")){
 						String Address = rs.getString(val);
-						if(Address == null) Address = "";
 						val += 1;
 						%><td><%=Address%></td><%
 					}
 					if(map.containsKey("Sex")){
 						String Sex = rs.getString(val);
-						if(Sex == null) Sex = "";
 						val += 1;
 						%><td><%=Sex%></td><%
 					}
 					if(map.containsKey("Salary")){
 						String Salary = rs.getString(val);
-						if(Salary == null) Salary = "";
 						val += 1;
 						%><td><%=Salary%></td><%
 					}
