@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import = "java.sql.*" %>
 <%@ page import = "java.util.HashMap" %>
+<%@ page import = "java.util.regex.Pattern" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -46,6 +47,10 @@
 				$(".sAddress").hide();
 				$(".sAddress").attr("disabled",true);
 			}
+			if(radio.value !== "sRelationship"){
+				$(".sRelationship").hide();
+				$(".sRelationship").attr("disabled",true);
+			}
 		}
 		
 		function onChangedAddWork(radio) {
@@ -90,27 +95,6 @@
 				$(".uSalary").attr("disabled", true);
 			}
 		}
-		
-		function validTest() {
-			var fname = document.getElementsByName('iFname');
-			var lname = document.getElementsByName('iLname');
-			var ssn = document.getElementsByName('iSsn');
-			var dno = document.getElementsByName('iDno');
-			dnum=+dno[0].value;
-			if(fname[0].value === "" || lname[0].value === "" || ssn[0].value === "" || dno[0].value === ""){
-				alert("이름, Ssn, Dno는 필수 입력 항목입니다.");
-				return false;
-			}
-			if(ssn[0].value.length !== 9) {
-				alert("ssn 길이는 9자 입니다.");
-				return false;
-			}
-			if(dnum !== 1 && dnum !== 4 && dnum !== 5) {
-				alert(""+ dnum + "은 없는 부서 번호입니다.");
-				return false;
-			}
-			document.getElementById('insertForm').submit();
-		}
 	</script>
 	<form action = "home.jsp">
 		<table border="1">
@@ -122,7 +106,7 @@
 		
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String url = "jdbc:mysql://localhost:3306/company?serverTimezone=UTC";
+			String url = "jdbc:mysql://localhost/company?serverTimezone=UTC";
 			conn = DriverManager.getConnection(url, "root", "root");
 			
 			stmt = conn.createStatement();
@@ -151,12 +135,15 @@
 				<label class="btn btn-primary">
 					<input type='radio' name='search' value='sAddress' onchange="onChanged(this);"/>거주지
 				</label>
+				<label class="btn btn-primary">
+					<input type='radio' name='search' value='sRelationship' onchange="onChanged(this);"/>가족 관계
+				</label>
 			</div>
 			<div class="sDepartment" style="display: none;" disabled>
 				<h3>부서 선택</h3>
 				<div class="btn-group" data-toggle="buttons">
-					<label class="btn btn-success active">
-						<input type='radio' name='ssDepartment' value='H' checked/>Headquarters
+					<label class="btn btn-success">
+						<input type='radio' name='ssDepartment' value='H'/>Headquarters
 					</label>
 					<label class="btn btn-success">
 						<input type='radio' name='ssDepartment' value='A'/>Administration
@@ -169,8 +156,8 @@
 			<div class="sSex" style="display: none;" disabled>
 				<h3>성별 선택</h3>
 				<div class="btn-group" data-toggle="buttons">
-					<label class="btn btn-success active">
-						<input type='radio' name='ssSex' value='M' checked/>M
+					<label class="btn btn-success">
+						<input type='radio' name='ssSex' value='M'/>M
 					</label>
 					<label class="btn btn-success">
 						<input type='radio' name='ssSex' value='F'/>F
@@ -184,8 +171,8 @@
 			<div class="sBirthday" style="display: none;" disabled>
 				<h3>날짜 선택</h3>
 				<div class="btn-group" data-toggle="buttons">
-					<label class="btn btn-success active">
-						<input type='radio' name="ssMonth" value='sJan' checked/>1월
+					<label class="btn btn-success">
+						<input type='radio' name="ssMonth" value='sJan'/>1월
 					</label>
 					<label class="btn btn-success">
 						<input type='radio' name="ssMonth" value='sFeb'/>2월
@@ -230,6 +217,23 @@
 				<h3>거주지 입력</h3>
 				<input type='text' size='10' name='ssAddress'/>
 			</div>
+			<div class="sRelationship" style="display: none;" disabled>
+				<h3>관계 선택</h3>
+				<div class="btn-group" data-toggle="buttons">
+					<label class="btn btn-success">
+						<input type='radio' name='ssRelationship' value='S'/>아들
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name='ssRelationship' value='D'/>딸
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name='ssRelationship' value='W'/>아내
+					</label>
+					<label class="btn btn-success">
+						<input type='radio' name='ssRelationship' value='N'/>없음
+					</label>
+				</div>
+			</div>
 			
 			<h3>세부 검색 설정</h3>
 			<div class="btn-group" data-toggle="buttons">
@@ -263,6 +267,7 @@
 			<%
 			
 			%>
+			<br><br>
 			<h3>추가 작업</h3>
 			<div class="btn-group" data-toggle="buttons">
 				<label class="btn btn-warning">
@@ -313,8 +318,8 @@
 						    	<label for="iSex">Sex</label>
 						    	<br>
 							    <div class="btn-group" data-toggle="buttons">
-							      <label class="btn btn-success active">
-								    <input type="radio" name="iSex" value="M" checked>남자
+							      <label class="btn btn-success">
+								    <input type="radio" name="iSex" value="M">남자
 							      </label>
 								  <label class="btn btn-success">
 								    <input type="radio" name="iSex" value="F">여자
@@ -372,7 +377,7 @@
 			<div class="update" style="display: none;" disabled>
 				<div class="btn-group"" data-toggle="buttons">
 					<label class="btn btn-success">
-						<input type="radio" name="uSelect" value="uAddress" onchange="onChangedUpdate(this);" checked>주소 변경
+						<input type="radio" name="uSelect" value="uAddress" onchange="onChangedUpdate(this);">주소 변경
 					</label>
 					<label class="btn btn-success">
 						<input type="radio" name="uSelect" value="uSex" onchange="onChangedUpdate(this);">성별 변경
@@ -393,8 +398,8 @@
 			<div class="uSex" style="display:none;">
 				<p>성별 변경</p>
 				<div class="btn-group" data-toggle="buttons">
-					<label class="btn btn-success active">
-						<input type='radio' name='uuSex' value='M' checked/>  M  
+					<label class="btn btn-success">
+						<input type='radio' name='uuSex' value='M'/>  M  
 					</label>
 					<label class="btn btn-success">
 						<input type='radio' name='uuSex' value='F'/>  F  
@@ -410,83 +415,91 @@
 			
 			<%
 			
-			// insert, update, delete 구현 
-						if(request.getParameter("choice") != null){ // insert와 delete 쿼리
-							if(request.getParameter("choice").equals("insert")){
-								String[] arr = {"iFname", "iMinit", "iLname", "iSsn", "iBdate", "iAddress", "iSex", "iSalary", "iSuper_ssn", "iDno"};
-								String[] sql_arr = {"Fname", "Minit", "Lname", "Ssn", "Bdate", "Address", "Sex", "Salary", "Super_ssn", "Dno"};
+			// insert, update, delete 구현
+			try{
+				if(request.getParameter("choice") != null){ // insert와 delete 쿼리
+					if(request.getParameter("choice").equals("insert")){
+						String[] arr = {"iFname", "iMinit", "iLname", "iSsn", "iBdate", "iAddress", "iSex", "iSalary", "iSuper_ssn", "iDno"};
+						String[] sql_arr = {"Fname", "Minit", "Lname", "Ssn", "Bdate", "Address", "Sex", "Salary", "Super_ssn", "Dno"};
+						String[] vaild = { "^[a-zA-Z]*$", "^[a-zA-Z]*$", "^[a-zA-Z]*$", "^\\d{9}$", "^(\\d{4})-(\\d{1,2})-(\\d{1,2})$", "^[a-zA-Z0-9]*$", "^(M|F)$", "^[0-9]*$", "^\\d{9}$", "^(?:1|4|5)$"};  
+						boolean validFlag = true;
+
+						String query = "INSERT INTO EMPLOYEE(";
+						for(int i = 0; i < sql_arr.length; i++){
+							if(request.getParameter(arr[i]) != null && !request.getParameter(arr[i]).equals("")){
+								if(!Pattern.matches(vaild[i], request.getParameter(arr[i]))) validFlag = false;
+								query += sql_arr[i] + ", ";
+							}
+						}
+						query = query.substring(0, query.length() - 2) + ") VALUES(";
 								
-								String query = "INSERT INTO EMPLOYEE(";
-								for(int i = 0; i < sql_arr.length; i++){
-									if(!request.getParameter(arr[i]).equals("")){
-										query += sql_arr[i] + ", ";
-									}
-								}
-								query = query.substring(0, query.length() - 2) + ") VALUES(";
+						for(int i = 0; i < arr.length; i++){
+							if(request.getParameter(arr[i]) != null && !request.getParameter(arr[i]).equals("")){
+								query += "'" + request.getParameter(arr[i]) + "', ";
+							}
+						}
+						query = query.substring(0, query.length() - 2) + ");";
 								
-								for(int i = 0; i < arr.length; i++){
-									if(!request.getParameter(arr[i]).equals("")){
-										query += "'" + request.getParameter(arr[i]) + "', ";
-									}
-								}
-								query = query.substring(0, query.length() - 2) + ");";
-								
+						if(validFlag) conn.prepareStatement(query).executeUpdate();
+					}
+					else if(request.getParameter("choice").equals("delete")){
+						String[] deleteEmployeeSsn = request.getParameterValues("updateCheckBox");
+						if(deleteEmployeeSsn != null && deleteEmployeeSsn.length != 0){
+							for(int i = 0; i < deleteEmployeeSsn.length; i++){
+								String query = "DELETE FROM EMPLOYEE WHERE Ssn=" + deleteEmployeeSsn[i];
 								conn.prepareStatement(query).executeUpdate();
 							}
-							else if(request.getParameter("choice").equals("delete")){
-								String[] deleteEmployeeSsn = request.getParameterValues("updateCheckBox");
-								if(deleteEmployeeSsn != null && deleteEmployeeSsn.length != 0){
-									for(int i = 0; i < deleteEmployeeSsn.length; i++){
-										String query = "DELETE FROM EMPLOYEE WHERE Ssn=" + deleteEmployeeSsn[i];
-										conn.prepareStatement(query).executeUpdate();
-									}
-								}
-							}
 						}
+					}
+				}
 						
-						if(request.getParameter("updateChoice") != null){ // update 쿼리
-							String[] updateEmployeeSsn = request.getParameterValues("updateCheckBox");
-							if(updateEmployeeSsn != null && updateEmployeeSsn.length != 0){
-								if(request.getParameter("updateChoice").equals("uuAddress") && request.getParameter("uuAddress") != null){
-									for(int i = 0; i < updateEmployeeSsn.length; i++){
-										String query = "UPDATE EMPLOYEE SET Address = ? WHERE Ssn = ?";
-										pstmt = conn.prepareStatement(query);
-										pstmt.setString(1, request.getParameter("uuAddress"));
-										pstmt.setString(2, updateEmployeeSsn[i]);
-										pstmt.executeUpdate();
-									}
-								}
-								else if(request.getParameter("updateChoice").equals("uuSex") && request.getParameter("uuSex") != null){
-									for(int i = 0; i < updateEmployeeSsn.length; i++){
-										String query = "UPDATE EMPLOYEE SET Sex = ? WHERE Ssn = ?";
-										pstmt = conn.prepareStatement(query);
-										pstmt.setString(1, request.getParameter("uuSex"));
-										pstmt.setString(2, updateEmployeeSsn[i]);
-										pstmt.executeUpdate();
-									}
-								}
-								else if(request.getParameter("updateChoice").equals("uuSalary") && request.getParameter("uuSalary") != null){
-									for (int i = 0; i < updateEmployeeSsn.length; i++){
-										String query = "UPDATE EMPLOYEE SET Salary = ? WHERE Ssn = ?";
-										pstmt = conn.prepareStatement(query);
-										pstmt.setString(1, request.getParameter("uuSalary"));
-										pstmt.setString(2, updateEmployeeSsn[i]);
-										pstmt.executeUpdate();
-									}
-								}
+				if(request.getParameter("updateChoice") != null){ // update 쿼리
+					String[] updateEmployeeSsn = request.getParameterValues("updateCheckBox");
+					if(updateEmployeeSsn != null && updateEmployeeSsn.length != 0){
+						if(request.getParameter("updateChoice").equals("uuAddress") && request.getParameter("uuAddress") != null){
+							for(int i = 0; i < updateEmployeeSsn.length; i++){
+								String query = "UPDATE EMPLOYEE SET Address = ? WHERE Ssn = ?";
+								pstmt = conn.prepareStatement(query);
+								pstmt.setString(1, request.getParameter("uuAddress"));
+								pstmt.setString(2, updateEmployeeSsn[i]);
+								pstmt.executeUpdate();
 							}
 						}
+						else if(request.getParameter("updateChoice").equals("uuSex") && request.getParameter("uuSex") != null){
+							for(int i = 0; i < updateEmployeeSsn.length; i++){
+								String query = "UPDATE EMPLOYEE SET Sex = ? WHERE Ssn = ?";
+								pstmt = conn.prepareStatement(query);
+								pstmt.setString(1, request.getParameter("uuSex"));
+								pstmt.setString(2, updateEmployeeSsn[i]);
+								pstmt.executeUpdate();
+							}
+						}
+						else if(request.getParameter("updateChoice").equals("uuSalary") && request.getParameter("uuSalary") != null){
+							for (int i = 0; i < updateEmployeeSsn.length; i++){
+								String query = "UPDATE EMPLOYEE SET Salary = ? WHERE Ssn = ?";
+								pstmt = conn.prepareStatement(query);
+								pstmt.setString(1, request.getParameter("uuSalary"));
+								pstmt.setString(2, updateEmployeeSsn[i]);
+								pstmt.executeUpdate();
+							}
+						}
+					}
+				}
+			} catch(SQLException e){
+					System.out.println("에러: " + e);
+			}
 			%>
+			<br><br>
 			<h3>검색 결과</h3>
 			<table class="table table-hover">
 			<%
 			//request.getParameter("choice") != null
 			if(true){
-				String query = "SELECT a.Ssn, ";
+				String query = "SELECT distinct a.Ssn, ";
 				HashMap<String, String> map = new HashMap<String, String>();
 				boolean flag = false; // a.Ssn만 있으면 표를 보여주지 않아야함
 				if(request.getParameter("sName") != null){
-					query += "concat(a.Fname, ' ', a.Minit, ' ', a.Lname) as Name, ";
+					query += "IF(a.Minit IS NULL, concat(a.Fname, ' ', a.Lname), concat(a.Fname, ' ', a.Minit, ' ', a.Lname)), ";
 					map.put("Name", "1");
 					flag = true;
 				}
@@ -525,8 +538,13 @@
 					map.put("Dname", "1");
 					flag = true;
 				}
+				if(request.getParameter("sRelaionship") != null){
+					query += "Relationship, ";
+					map.put("Relationship", "1");
+					flag = true;
+				}
 				query = query.substring(0, query.length() - 2);
-				query += " FROM employee a LEFT JOIN employee b ON a.super_ssn=b.ssn JOIN department ON a.Dno=Dnumber";
+				query += " FROM employee a LEFT JOIN employee b ON a.super_ssn=b.ssn JOIN department ON a.Dno=Dnumber LEFT JOIN dependent ON a.Ssn=Essn";
 				
 				if(request.getParameter("search") != null && !request.getParameter("search").equals("sDefault")){
 					if(request.getParameter("ssDepartment") != null){
@@ -557,10 +575,26 @@
 					else if(request.getParameter("ssUnderling") != null && !request.getParameter("ssUnderling").equals("")){
 						query += " where a.Super_ssn = " + request.getParameter("ssUnderling");
 					}
+					else if(request.getParameter("ssAddress") != null && !request.getParameter("ssAddress").equals("")){
+						query += " where a.Address like \'%" + request.getParameter("ssAddress") + "%\';";
+					}
+					else if(request.getParameter("ssRelationship") != null){
+						query += " where ";
+						if (request.getParameter("ssRelationship").equals("N")) query += " NOT ";
+						
+						query += " EXISTS (SELECT * From Dependent where a.Ssn=Essn ";
+						if (!request.getParameter("ssRelationship").equals("N")){
+							query += " and Relationship = ";
+							if(request.getParameter("ssRelationship").equals("S")) query += "'Son'";
+							else if(request.getParameter("ssRelationship").equals("D")) query += "'Daughter'";
+							else if(request.getParameter("ssRelationship").equals("W")) query += "'Spouse'";
+						}
+						
+						query += ")";
+					}
 				}
 				query += ";";
-				
-				
+
 				rs = stmt.executeQuery(query);
 				
 				// 검색 결과 테이블 구현
@@ -593,6 +627,9 @@
 				if(map.containsKey("Dname")){
 					%> <th>DEPARTMENT</th> <%
 				}
+				if(map.containsKey("Relationship")){
+					%> <th>RELATIONSHIP</th> <%
+				}
 				
 				while(rs.next()){
 					String checkBoxSsn = rs.getString(1);
@@ -605,6 +642,7 @@
 					int val = 2;
 					if(map.containsKey("Name")){
 						String Name = rs.getString(val);
+						if(Name == null) Name = "";
 						val += 1;
 						%><td><%=Name%></td><%
 					}
@@ -615,21 +653,25 @@
 					}
 					if(map.containsKey("Bdate")){
 						String Bdate = rs.getString(val);
+						if(Bdate == null) Bdate = "";
 						val += 1;
 						%><td><%=Bdate%></td><%
 					}
 					if(map.containsKey("Address")){
 						String Address = rs.getString(val);
+						if(Address == null) Address = "";
 						val += 1;
 						%><td><%=Address%></td><%
 					}
 					if(map.containsKey("Sex")){
 						String Sex = rs.getString(val);
+						if(Sex == null) Sex = "";
 						val += 1;
 						%><td><%=Sex%></td><%
 					}
 					if(map.containsKey("Salary")){
 						String Salary = rs.getString(val);
+						if(Salary == null) Salary = "";
 						val += 1;
 						%><td><%=Salary%></td><%
 					}
@@ -643,6 +685,11 @@
 						String Dname = rs.getString(val);
 						val += 1;
 						%><td><%=Dname%></td><%
+					}
+					if(map.containsKey("Relationship")){
+						String Relationship = rs.getString(val);
+						val += 1;
+						%><td><%=Relationship%></td><%
 					}
 					%> </tr> <%
 				}
