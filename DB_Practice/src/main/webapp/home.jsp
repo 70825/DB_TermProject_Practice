@@ -722,6 +722,7 @@
 		}
 		%>
 </table>
+</table>
 </form>
 </body>
 </html>
